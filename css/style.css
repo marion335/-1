@@ -312,6 +312,12 @@ a {
   margin: 0;
 }
 
+/* Instagram */
+.instagram__embed {
+  display: flex;
+  justify-content: center;
+}
+
 /* Access */
 .access__grid {
   display: grid;
