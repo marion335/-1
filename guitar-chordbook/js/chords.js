@@ -22,65 +22,98 @@ const TYPE_GROUPS = [
   { id: 'other', label: 'その他', types: ['sus4', 'sus2', '6', 'm6'] }
 ];
 
+/* 各弦の開放時の音名インデックス（NOTE_NAMES基準）: [6弦,5弦,4弦,3弦,2弦,1弦] */
+const STRING_OPEN_PITCH = [4, 9, 2, 7, 11, 4];
+
+/* ルート音からの半音差 → 度数表記（♭/#付き） */
+const DEGREE_LABELS = {
+  0: 'R', 1: 'b2', 2: '2', 3: 'b3', 4: '3', 5: '4',
+  6: 'b5', 7: '5', 8: '#5', 9: '6', 10: 'b7', 11: '7'
+};
+
+/** ある弦・フレットの音が、指定ルートから見て何度にあたるかを返す */
+function degreeLabel(root, stringIndex, fret) {
+  const pitch = (STRING_OPEN_PITCH[stringIndex] + fret) % 12;
+  const interval = (pitch - root + 12) % 12;
+  return DEGREE_LABELS[interval];
+}
+
+/** ルート音を鳴らしている最も低い弦のインデックス(0=6弦...5=1弦)を返す */
+function findRootStringIndex(chord) {
+  if (chord.root === undefined || chord.root === null) return null;
+  for (let s = 0; s < 6; s++) {
+    const fret = chord.frets[s];
+    if (fret === -1) continue;
+    if ((STRING_OPEN_PITCH[s] + fret) % 12 === chord.root) return s;
+  }
+  return null;
+}
+
+/** 「6弦ルート」「5弦ルート」等のバッジ文字列を返す（判定不可ならnull） */
+function rootStringLabel(chord) {
+  const s = findRootStringIndex(chord);
+  return s === null ? null : `${6 - s}弦ルート`;
+}
+
 /* ---------------- オープンコード辞書（厳選・定番） ---------------- */
-/* frets/fingers: [6弦,5弦,4弦,3弦,2弦,1弦] fingers 0=開放/押さえない */
+/* frets: [6弦,5弦,4弦,3弦,2弦,1弦] -1=ミュート 0=開放 1以上=フレット */
 
 const OPEN_CHORDS = [
   // --- Major ---
-  { root: 4, type: 'major', frets: [0, 2, 2, 1, 0, 0], fingers: [0, 2, 3, 1, 0, 0] },
-  { root: 9, type: 'major', frets: [-1, 0, 2, 2, 2, 0], fingers: [0, 0, 1, 2, 3, 0] },
-  { root: 2, type: 'major', frets: [-1, -1, 0, 2, 3, 2], fingers: [0, 0, 0, 1, 3, 2] },
-  { root: 7, type: 'major', frets: [3, 2, 0, 0, 0, 3], fingers: [2, 1, 0, 0, 0, 3] },
-  { root: 0, type: 'major', frets: [-1, 3, 2, 0, 1, 0], fingers: [0, 3, 2, 0, 1, 0] },
-  { root: 5, type: 'major', frets: [-1, -1, 3, 2, 1, 1], fingers: [0, 0, 3, 2, 1, 1], note: 'F（簡易フォーム）' },
+  { root: 4, type: 'major', frets: [0, 2, 2, 1, 0, 0] },
+  { root: 9, type: 'major', frets: [-1, 0, 2, 2, 2, 0] },
+  { root: 2, type: 'major', frets: [-1, -1, 0, 2, 3, 2] },
+  { root: 7, type: 'major', frets: [3, 2, 0, 0, 0, 3] },
+  { root: 0, type: 'major', frets: [-1, 3, 2, 0, 1, 0] },
+  { root: 5, type: 'major', frets: [-1, -1, 3, 2, 1, 1], note: 'F（簡易フォーム）' },
 
   // --- Minor ---
-  { root: 4, type: 'minor', frets: [0, 2, 2, 0, 0, 0], fingers: [0, 2, 3, 0, 0, 0] },
-  { root: 9, type: 'minor', frets: [-1, 0, 2, 2, 1, 0], fingers: [0, 0, 2, 3, 1, 0] },
-  { root: 2, type: 'minor', frets: [-1, -1, 0, 2, 3, 1], fingers: [0, 0, 0, 2, 3, 1] },
+  { root: 4, type: 'minor', frets: [0, 2, 2, 0, 0, 0] },
+  { root: 9, type: 'minor', frets: [-1, 0, 2, 2, 1, 0] },
+  { root: 2, type: 'minor', frets: [-1, -1, 0, 2, 3, 1] },
 
   // --- 7 ---
-  { root: 4, type: '7', frets: [0, 2, 0, 1, 0, 0], fingers: [0, 2, 0, 1, 0, 0] },
-  { root: 9, type: '7', frets: [-1, 0, 2, 0, 2, 0], fingers: [0, 0, 1, 0, 2, 0] },
-  { root: 2, type: '7', frets: [-1, -1, 0, 2, 1, 2], fingers: [0, 0, 0, 2, 1, 3] },
-  { root: 7, type: '7', frets: [3, 2, 0, 0, 0, 1], fingers: [3, 2, 0, 0, 0, 1] },
-  { root: 0, type: '7', frets: [-1, 3, 2, 3, 1, 0], fingers: [0, 3, 2, 4, 1, 0] },
-  { root: 11, type: '7', frets: [-1, 2, 1, 2, 0, 2], fingers: [0, 2, 1, 3, 0, 4] },
+  { root: 4, type: '7', frets: [0, 2, 0, 1, 0, 0] },
+  { root: 9, type: '7', frets: [-1, 0, 2, 0, 2, 0] },
+  { root: 2, type: '7', frets: [-1, -1, 0, 2, 1, 2] },
+  { root: 7, type: '7', frets: [3, 2, 0, 0, 0, 1] },
+  { root: 0, type: '7', frets: [-1, 3, 2, 3, 1, 0] },
+  { root: 11, type: '7', frets: [-1, 2, 1, 2, 0, 2] },
 
   // --- m7 ---
-  { root: 4, type: 'm7', frets: [0, 2, 0, 0, 0, 0], fingers: [0, 2, 0, 0, 0, 0] },
-  { root: 9, type: 'm7', frets: [-1, 0, 2, 0, 1, 0], fingers: [0, 0, 2, 0, 1, 0] },
-  { root: 2, type: 'm7', frets: [-1, -1, 0, 2, 1, 1], fingers: [0, 0, 0, 2, 1, 1] },
+  { root: 4, type: 'm7', frets: [0, 2, 0, 0, 0, 0] },
+  { root: 9, type: 'm7', frets: [-1, 0, 2, 0, 1, 0] },
+  { root: 2, type: 'm7', frets: [-1, -1, 0, 2, 1, 1] },
 
   // --- maj7 ---
-  { root: 0, type: 'maj7', frets: [-1, 3, 2, 0, 0, 0], fingers: [0, 3, 2, 0, 0, 0] },
-  { root: 2, type: 'maj7', frets: [-1, -1, 0, 2, 2, 2], fingers: [0, 0, 0, 1, 2, 3] },
-  { root: 4, type: 'maj7', frets: [0, 2, 1, 1, 0, 0], fingers: [0, 3, 1, 1, 0, 0] },
-  { root: 7, type: 'maj7', frets: [3, 2, 0, 0, 0, 2], fingers: [3, 2, 0, 0, 0, 1] },
-  { root: 9, type: 'maj7', frets: [-1, 0, 2, 1, 2, 0], fingers: [0, 0, 2, 1, 3, 0] },
-  { root: 5, type: 'maj7', frets: [-1, -1, 3, 2, 1, 0], fingers: [0, 0, 3, 2, 1, 0] },
+  { root: 0, type: 'maj7', frets: [-1, 3, 2, 0, 0, 0] },
+  { root: 2, type: 'maj7', frets: [-1, -1, 0, 2, 2, 2] },
+  { root: 4, type: 'maj7', frets: [0, 2, 1, 1, 0, 0] },
+  { root: 7, type: 'maj7', frets: [3, 2, 0, 0, 0, 2] },
+  { root: 9, type: 'maj7', frets: [-1, 0, 2, 1, 2, 0] },
+  { root: 5, type: 'maj7', frets: [-1, -1, 3, 2, 1, 0] },
 
   // --- sus4 ---
-  { root: 9, type: 'sus4', frets: [-1, 0, 2, 2, 3, 0], fingers: [0, 0, 1, 2, 4, 0] },
-  { root: 2, type: 'sus4', frets: [-1, -1, 0, 2, 3, 3], fingers: [0, 0, 0, 1, 3, 3] },
-  { root: 4, type: 'sus4', frets: [0, 2, 2, 2, 0, 0], fingers: [0, 2, 3, 4, 0, 0] },
-  { root: 0, type: 'sus4', frets: [-1, 3, 3, 0, 1, 1], fingers: [0, 3, 4, 0, 1, 1] },
+  { root: 9, type: 'sus4', frets: [-1, 0, 2, 2, 3, 0] },
+  { root: 2, type: 'sus4', frets: [-1, -1, 0, 2, 3, 3] },
+  { root: 4, type: 'sus4', frets: [0, 2, 2, 2, 0, 0] },
+  { root: 0, type: 'sus4', frets: [-1, 3, 3, 0, 1, 1] },
 
   // --- sus2 ---
-  { root: 9, type: 'sus2', frets: [-1, 0, 2, 2, 0, 0], fingers: [0, 0, 1, 2, 0, 0] },
-  { root: 2, type: 'sus2', frets: [-1, -1, 0, 2, 3, 0], fingers: [0, 0, 0, 1, 2, 0] },
+  { root: 9, type: 'sus2', frets: [-1, 0, 2, 2, 0, 0] },
+  { root: 2, type: 'sus2', frets: [-1, -1, 0, 2, 3, 0] },
 
   // --- 6 ---
-  { root: 0, type: '6', frets: [-1, 3, 2, 2, 1, 0], fingers: [0, 4, 2, 3, 1, 0] },
-  { root: 7, type: '6', frets: [3, 2, 0, 0, 0, 0], fingers: [3, 2, 0, 0, 0, 0] },
-  { root: 9, type: '6', frets: [-1, 0, 2, 2, 2, 2], fingers: [0, 0, 1, 1, 1, 1] },
-  { root: 4, type: '6', frets: [0, 2, 2, 1, 2, 0], fingers: [0, 2, 3, 1, 4, 0] },
-  { root: 2, type: '6', frets: [-1, -1, 0, 2, 0, 2], fingers: [0, 0, 0, 1, 0, 2] },
+  { root: 0, type: '6', frets: [-1, 3, 2, 2, 1, 0] },
+  { root: 7, type: '6', frets: [3, 2, 0, 0, 0, 0] },
+  { root: 9, type: '6', frets: [-1, 0, 2, 2, 2, 2] },
+  { root: 4, type: '6', frets: [0, 2, 2, 1, 2, 0] },
+  { root: 2, type: '6', frets: [-1, -1, 0, 2, 0, 2] },
 
   // --- m6 ---
-  { root: 9, type: 'm6', frets: [-1, 0, 2, 2, 1, 2], fingers: [0, 0, 2, 3, 1, 4] },
-  { root: 4, type: 'm6', frets: [0, 2, 2, 0, 2, 0], fingers: [0, 2, 3, 0, 4, 0] },
-  { root: 2, type: 'm6', frets: [-1, -1, 0, 2, 0, 1], fingers: [0, 0, 0, 2, 0, 1] }
+  { root: 9, type: 'm6', frets: [-1, 0, 2, 2, 1, 2] },
+  { root: 4, type: 'm6', frets: [0, 2, 2, 0, 2, 0] },
+  { root: 2, type: 'm6', frets: [-1, -1, 0, 2, 0, 1] }
 ].map(c => ({ ...c, voicing: 'open', shape: 'open' }));
 
 /* ---------------- バレーコード生成テンプレート ----------------
@@ -136,7 +169,6 @@ function generateBarreChords() {
           root,
           type,
           frets: buildBarreFrets(templates[type], b),
-          fingers: null,
           voicing: 'barre',
           shape,
           baseFret: b

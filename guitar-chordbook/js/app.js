@@ -57,78 +57,86 @@ function fullLibrary() {
   return [...CHORD_LIBRARY, ...getCustomChords()];
 }
 
-/* ---------------- SVGコードダイアグラム ---------------- */
+/* ---------------- SVGコードダイアグラム ----------------
+   指板は左に90°回転した横向き表示：ナット/バレーが左端、フレットは右方向へ、
+   弦は上から1弦(High E)→下へ6弦(Low E)の順（実際に構えた時の見え方に近い並び）。
+------------------------------------------------------------------ */
 
 function renderChordSVG(chord, opts = {}) {
   const large = !!opts.large;
-  const W = large ? 180 : 118;
-  const H = large ? 220 : 140;
-  const marginTop = large ? 30 : 20;
-  const marginBottom = large ? 14 : 8;
-  const marginLeft = large ? 20 : 14;
-  const marginRight = large ? 16 : 10;
-  const rows = 4;
-  const cols = 5; // 6弦間の間隔数
-  const stringGap = (W - marginLeft - marginRight) / cols;
-  const fretGap = (H - marginTop - marginBottom) / rows;
+  const W = large ? 240 : 150;
+  const H = large ? 160 : 100;
+  const marginTop = large ? 14 : 10;
+  const marginBottom = large ? 14 : 10;
+  const marginLeft = large ? 34 : 24;
+  const marginRight = large ? 14 : 10;
+  const cols = 4; // フレット間の間隔数（横方向）
+  const rows = 5; // 6弦間の間隔数（縦方向）
+  const fretGap = (W - marginLeft - marginRight) / cols;
+  const stringGap = (H - marginTop - marginBottom) / rows;
+  const dotR = large ? 9 : 6.5;
 
   const isBarre = chord.voicing === 'barre';
   const baseFret = chord.baseFret || 0;
   const windowStart = isBarre ? baseFret : 1;
+  const hasRoot = chord.root !== undefined && chord.root !== null;
+
+  // 弦インデックス(0=6弦...5=1弦) → 縦位置。1弦を上、6弦を下に配置。
+  const stringY = s => marginTop + (5 - s) * stringGap;
 
   let svg = `<svg viewBox="0 0 ${W} ${H}" class="chord-svg" role="img" aria-label="${chord.name}">`;
 
-  // 弦（縦線）
+  // 弦（横線）
   for (let s = 0; s < 6; s++) {
-    const x = marginLeft + s * stringGap;
-    svg += `<line x1="${x}" y1="${marginTop}" x2="${x}" y2="${marginTop + fretGap * rows}" class="string-line" />`;
+    const y = stringY(s);
+    svg += `<line x1="${marginLeft}" y1="${y}" x2="${marginLeft + fretGap * cols}" y2="${y}" class="string-line" />`;
   }
 
-  // フレット（横線）
-  for (let f = 0; f <= rows; f++) {
-    const y = marginTop + f * fretGap;
+  // フレット（縦線）
+  for (let f = 0; f <= cols; f++) {
+    const x = marginLeft + f * fretGap;
     const isNut = f === 0 && windowStart === 1;
-    svg += `<line x1="${marginLeft}" y1="${y}" x2="${marginLeft + stringGap * cols}" y2="${y}" class="${isNut ? 'nut-line' : 'fret-line'}" />`;
+    svg += `<line x1="${x}" y1="${marginTop}" x2="${x}" y2="${marginTop + stringGap * rows}" class="${isNut ? 'nut-line' : 'fret-line'}" />`;
   }
 
   // バレー位置ラベル（開放形以外）
   if (windowStart !== 1) {
-    const y = marginTop + fretGap * 0.5;
-    svg += `<text x="${marginLeft - 6}" y="${y + 3}" class="fret-label" text-anchor="end">${windowStart}fr</text>`;
+    svg += `<text x="${marginLeft}" y="${marginTop - 4}" class="fret-label" text-anchor="middle">${windowStart}fr</text>`;
   }
 
-  // 開放/ミュート マーカー、押弦ドット
+  // 開放/ミュート マーカー（ナットの左側）
   const barreRowStrings = [];
   chord.frets.forEach((fret, s) => {
-    const x = marginLeft + s * stringGap;
+    const y = stringY(s);
     if (fret === -1) {
-      svg += `<text x="${x}" y="${marginTop - 6}" class="string-mark" text-anchor="middle">×</text>`;
+      svg += `<text x="${marginLeft - 7}" y="${y + 3}" class="string-mark" text-anchor="middle">×</text>`;
     } else if (fret === 0) {
-      svg += `<text x="${x}" y="${marginTop - 6}" class="string-mark" text-anchor="middle">○</text>`;
+      svg += `<text x="${marginLeft - 7}" y="${y + 3}" class="string-mark" text-anchor="middle">○</text>`;
     } else {
-      const row = fret - windowStart + 1;
-      if (row === 1 && isBarre) barreRowStrings.push(s);
+      const col = fret - windowStart + 1;
+      if (col === 1 && isBarre) barreRowStrings.push(s);
     }
   });
 
-  // バレーの帯（2弦以上つながっている場合）
+  // バレーの帯（2弦以上つながっている場合、縦方向の帯）
   if (barreRowStrings.length >= 2) {
-    const x1 = marginLeft + Math.min(...barreRowStrings) * stringGap;
-    const x2 = marginLeft + Math.max(...barreRowStrings) * stringGap;
-    const y = marginTop + fretGap * 0.5;
-    svg += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="barre-bar" />`;
+    const y1 = Math.min(...barreRowStrings.map(stringY));
+    const y2 = Math.max(...barreRowStrings.map(stringY));
+    const x = marginLeft + fretGap * 0.5;
+    svg += `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" class="barre-bar" />`;
   }
 
-  // 個々のドット
+  // 個々のドット（度数表記）
   chord.frets.forEach((fret, s) => {
     if (fret <= 0) return;
-    const x = marginLeft + s * stringGap;
-    const row = fret - windowStart + 1;
-    const y = marginTop + fretGap * (row - 0.5);
-    const finger = chord.fingers && chord.fingers[s] > 0 ? chord.fingers[s] : null;
-    svg += `<circle cx="${x}" cy="${y}" r="${large ? 8 : 5.5}" class="dot" />`;
-    if (finger) {
-      svg += `<text x="${x}" y="${y + (large ? 4 : 2.5)}" class="finger-label" text-anchor="middle">${finger}</text>`;
+    const col = fret - windowStart + 1;
+    const x = marginLeft + fretGap * (col - 0.5);
+    const y = stringY(s);
+    const label = hasRoot ? degreeLabel(chord.root, s, fret) : null;
+    const isRoot = label === 'R';
+    svg += `<circle cx="${x}" cy="${y}" r="${dotR}" class="dot${isRoot ? ' dot--root' : ''}" />`;
+    if (label) {
+      svg += `<text x="${x}" y="${y + (large ? 3.5 : 2.5)}" class="degree-label${large ? ' degree-label--large' : ''}" text-anchor="middle">${label}</text>`;
     }
   });
 
@@ -173,6 +181,7 @@ function chordCardHTML(c) {
   const badge = c.voicing === 'open'
     ? 'オープン'
     : (c.shape === 'E-shape' ? 'バレー・E型' : 'バレー・A型');
+  const rootBadge = rootStringLabel(c);
   return `
     <article class="chord-card" data-id="${c.id}" tabindex="0">
       <div class="chord-card__head">
@@ -182,6 +191,7 @@ function chordCardHTML(c) {
       <div class="chord-card__diagram">${renderChordSVG(c)}</div>
       <div class="chord-card__foot">
         <span class="badge">${badge}</span>
+        ${rootBadge ? `<span class="badge badge--root">${rootBadge}</span>` : ''}
         ${c.note ? `<span class="badge badge--alt">${c.note}</span>` : ''}
         ${c.custom ? `<span class="badge badge--custom">マイコード</span>` : ''}
       </div>
@@ -217,35 +227,30 @@ function render() {
   }
 }
 
-/* ---------------- フィルタUI構築 ---------------- */
+/* ---------------- フィルタUI構築（プルダウン） ---------------- */
 
-function buildFilterUI() {
-  const rootRow = document.getElementById('rootFilter');
-  let rootHTML = `<button class="chip is-active" data-filter="root" data-value="">すべて</button>`;
-  for (let i = 0; i < 12; i++) {
-    rootHTML += `<button class="chip" data-filter="root" data-value="${i}">${NOTE_DISPLAY[i].split('/')[0]}</button>`;
-  }
-  rootRow.innerHTML = rootHTML;
-
-  const typeRow = document.getElementById('typeFilter');
-  let typeHTML = `<button class="chip is-active" data-filter="type" data-value="">すべて</button>`;
-  TYPE_GROUPS.forEach(g => {
-    g.types.forEach(t => {
-      typeHTML += `<button class="chip" data-filter="type" data-value="${t}">${t === 'major' ? 'メジャー' : t === 'minor' ? 'マイナー' : TYPE_LABELS[t]}</button>`;
-    });
-  });
-  typeRow.innerHTML = typeHTML;
+function typeOptionLabel(t) {
+  if (t === 'major') return 'メジャー';
+  if (t === 'minor') return 'マイナー';
+  return TYPE_LABELS[t];
 }
 
-function handleChipClick(e) {
-  const btn = e.target.closest('.chip');
-  if (!btn) return;
-  const group = btn.dataset.filter;
-  const value = btn.dataset.value;
-  document.querySelectorAll(`.chip[data-filter="${group}"]`).forEach(b => b.classList.remove('is-active'));
-  btn.classList.add('is-active');
-  state[group] = value === '' ? null : (group === 'root' ? Number(value) : value);
-  render();
+function buildFilterUI() {
+  const rootSelect = document.getElementById('rootFilter');
+  let rootHTML = `<option value="">すべて</option>`;
+  for (let i = 0; i < 12; i++) {
+    rootHTML += `<option value="${i}">${NOTE_DISPLAY[i].split('/')[0]}</option>`;
+  }
+  rootSelect.innerHTML = rootHTML;
+
+  const typeSelect = document.getElementById('typeFilter');
+  let typeHTML = `<option value="">すべて</option>`;
+  TYPE_GROUPS.forEach(g => {
+    g.types.forEach(t => {
+      typeHTML += `<option value="${t}">${typeOptionLabel(t)}</option>`;
+    });
+  });
+  typeSelect.innerHTML = typeHTML;
 }
 
 /* ---------------- モーダル（詳細＋メモ） ---------------- */
@@ -264,11 +269,13 @@ function openModal(id) {
   activeChordId = id;
   const fav = isFavorite(id);
   const notes = getNotes();
+  const rootBadge = rootStringLabel(c);
   modalBody.innerHTML = `
     <div class="modal__head">
       <h2>${c.name}</h2>
       <button class="star-btn ${fav ? 'is-fav' : ''}" data-action="fav" data-id="${c.id}">${fav ? '★ お気に入り済み' : '☆ お気に入りに追加'}</button>
     </div>
+    ${rootBadge ? `<span class="badge badge--root">${rootBadge}</span>` : ''}
     <div class="modal__diagram">${renderChordSVG(c, { large: true })}</div>
     <label class="modal__memo-label" for="memoInput">自分用メモ（練習ポイント・使う曲など）</label>
     <textarea id="memoInput" class="modal__memo" rows="4" placeholder="例：Aメロで使う。人差し指のセーハに注意。">${notes[id] || ''}</textarea>
@@ -340,7 +347,7 @@ function handleAddSubmit(e) {
   const baseFret = played.length ? Math.min(...played) : 0;
   const id = `custom-${Date.now()}`;
   const custom = {
-    id, name: nameInput, frets, fingers: null,
+    id, name: nameInput, frets,
     voicing: baseFret > 0 && !frets.includes(0) ? 'barre' : 'open',
     shape: null, baseFret: baseFret > 4 ? baseFret : 0,
     custom: true
@@ -361,8 +368,15 @@ function handleAddSubmit(e) {
 
 /* ---------------- イベント登録 ---------------- */
 
-document.getElementById('rootFilter').addEventListener('click', handleChipClick);
-document.getElementById('typeFilter').addEventListener('click', handleChipClick);
+document.getElementById('rootFilter').addEventListener('change', e => {
+  state.root = e.target.value === '' ? null : Number(e.target.value);
+  render();
+});
+
+document.getElementById('typeFilter').addEventListener('change', e => {
+  state.type = e.target.value === '' ? null : e.target.value;
+  render();
+});
 
 document.getElementById('voicingFilter').addEventListener('change', e => {
   state.voicing = e.target.value;
