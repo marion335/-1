@@ -38,6 +38,39 @@ function degreeLabel(root, stringIndex, fret) {
   return DEGREE_LABELS[interval];
 }
 
+/** ある弦・フレットの実際の音名（C, D, E...）を返す */
+function noteNameAt(stringIndex, fret) {
+  const pitch = (STRING_OPEN_PITCH[stringIndex] + fret) % 12;
+  return NOTE_NAMES[pitch];
+}
+
+/* 指板の表示モード（度数 / 音名）。両ページで共有するlocalStorageキー */
+const LABEL_MODE_KEY = 'gcb_label_mode';
+function getLabelMode() {
+  return localStorage.getItem(LABEL_MODE_KEY) === 'note' ? 'note' : 'degree';
+}
+function setLabelMode(mode) {
+  localStorage.setItem(LABEL_MODE_KEY, mode);
+}
+
+/** 度数/音名切り替えトグルを構築し、切り替え時に onChange を呼ぶ */
+function initLabelModeToggle(containerId, onChange) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const mode = getLabelMode();
+  container.innerHTML = `
+    <button class="toggle-btn ${mode === 'degree' ? 'is-active' : ''}" data-mode="degree">度数 (R,3,5…)</button>
+    <button class="toggle-btn ${mode === 'note' ? 'is-active' : ''}" data-mode="note">音名 (C,D,E…)</button>
+  `;
+  container.addEventListener('click', e => {
+    const btn = e.target.closest('.toggle-btn');
+    if (!btn) return;
+    setLabelMode(btn.dataset.mode);
+    container.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('is-active', b === btn));
+    onChange();
+  });
+}
+
 /** ルート音を鳴らしている最も低い弦のインデックス(0=6弦...5=1弦)を返す */
 function findRootStringIndex(chord) {
   if (chord.root === undefined || chord.root === null) return null;

@@ -46,13 +46,15 @@ function renderScaleSVG(pattern) {
     }
   }
 
+  const mode = getLabelMode();
   pattern.notesByString.forEach((notes, s) => {
     const y = stringY(s);
     notes.forEach(({ fret, degree }) => {
       const x = marginLeft + fret * fretGap;
       const isRoot = degree === 'R';
+      const label = mode === 'note' ? noteNameAt(s, fret) : degree;
       svg += `<circle cx="${x}" cy="${y}" r="${dotR}" class="dot${isRoot ? ' dot--root' : ''}" />`;
-      svg += `<text x="${x}" y="${y + 2.8}" class="degree-label degree-label--large" text-anchor="middle">${degree}</text>`;
+      svg += `<text x="${x}" y="${y + 2.8}" class="degree-label degree-label--large" text-anchor="middle">${label}</text>`;
     });
   });
 
@@ -138,4 +140,5 @@ document.getElementById('scaleTypeFilter').addEventListener('change', e => {
 });
 
 buildScaleFilterUI();
+initLabelModeToggle('labelModeToggle', renderScales);
 renderScales();

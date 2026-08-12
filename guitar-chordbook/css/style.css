@@ -183,6 +183,32 @@ a { color: inherit; }
   font-family: inherit;
 }
 
+.toggle-group {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px;
+  background: var(--paper);
+  gap: 2px;
+}
+
+.toggle-btn {
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.toggle-btn.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
 .mybook-hint {
   color: var(--ink-soft);
   font-size: 0.88rem;
@@ -349,6 +375,11 @@ a { color: inherit; }
 }
 
 .scale-svg { width: 470px; max-width: none; }
+
+@media (max-width: 520px) {
+  .scale-card { padding: 14px 12px; }
+  .scale-svg { width: 100%; max-width: 100%; }
+}
 
 /* ---------- Form (add custom chord) ---------- */
 

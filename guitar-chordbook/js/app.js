@@ -126,14 +126,16 @@ function renderChordSVG(chord, opts = {}) {
     svg += `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" class="barre-bar" />`;
   }
 
-  // 個々のドット（度数表記）
+  // 個々のドット（度数 or 音名表記）
+  const mode = getLabelMode();
   chord.frets.forEach((fret, s) => {
     if (fret <= 0) return;
     const col = fret - windowStart + 1;
     const x = marginLeft + fretGap * (col - 0.5);
     const y = stringY(s);
-    const label = hasRoot ? degreeLabel(chord.root, s, fret) : null;
-    const isRoot = label === 'R';
+    const degree = hasRoot ? degreeLabel(chord.root, s, fret) : null;
+    const isRoot = degree === 'R';
+    const label = hasRoot ? (mode === 'note' ? noteNameAt(s, fret) : degree) : null;
     svg += `<circle cx="${x}" cy="${y}" r="${dotR}" class="dot${isRoot ? ' dot--root' : ''}" />`;
     if (label) {
       svg += `<text x="${x}" y="${y + (large ? 3.5 : 2.5)}" class="degree-label${large ? ' degree-label--large' : ''}" text-anchor="middle">${label}</text>`;
@@ -456,4 +458,5 @@ addForm.addEventListener('submit', handleAddSubmit);
 
 buildFilterUI();
 initAddForm();
+initLabelModeToggle('labelModeToggle', render);
 render();
