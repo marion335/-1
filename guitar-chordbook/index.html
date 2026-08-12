@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MY GUITAR CHORD BOOK | オリジナルギターコードブック</title>
+<meta name="description" content="全12キー対応、オープンコードとバレーコード（E型・A型）を網羅したオリジナルのギターコードブック。お気に入り登録、練習メモ、自作コードの追加もできます。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="container header__inner">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true">♪</span>
+      <div>
+        <p class="brand__title">MY GUITAR CHORD BOOK</p>
+        <p class="brand__subtitle">オリジナル・ギターコードブック</p>
+      </div>
+    </div>
+    <nav class="nav-tabs" id="navTabs">
+      <button class="nav-tab is-active" data-view="library">コード一覧</button>
+      <button class="nav-tab" data-view="mybook">★ マイブック</button>
+      <button class="nav-tab" data-view="add">＋ コードを追加</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+  <section id="libraryPanel">
+    <div class="intro">
+      <p class="intro__eyebrow">12 KEYS / OPEN &amp; BARRE CHORDS</p>
+      <h1 class="intro__title">全12キー対応、あなただけのコード事典</h1>
+      <p class="intro__text">定番のオープンコードに加えて、E型・A型のバレーコードを全キーぶん自動収録。気になるコードは☆マイブックに登録して、自分専用のコードブックを育てていきましょう。</p>
+    </div>
+
+    <div class="filter-bar" id="filterBar">
+      <div class="filter-row">
+        <label class="filter-label">検索</label>
+        <input type="search" id="searchInput" class="search-input" placeholder="コード名で検索（例: Am7, F#）">
+      </div>
+      <div class="filter-row">
+        <label class="filter-label">ルート音</label>
+        <div class="chip-row" id="rootFilter"></div>
+      </div>
+      <div class="filter-row">
+        <label class="filter-label">コードタイプ</label>
+        <div class="chip-row" id="typeFilter"></div>
+      </div>
+      <div class="filter-row">
+        <label class="filter-label" for="voicingFilter">フォーム</label>
+        <select id="voicingFilter" class="select-input">
+          <option value="all">すべて</option>
+          <option value="open">オープンコード</option>
+          <option value="barre-E-shape">バレーコード（E型）</option>
+          <option value="barre-A-shape">バレーコード（A型）</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="mybook-hint" id="mybookHint" hidden>★をつけたお気に入りコードと、自分で追加したマイコードが表示されています。</p>
+
+    <p class="result-count" id="resultCount"></p>
+    <div class="chord-grid" id="chordGrid"></div>
+    <p class="empty-state" id="emptyState" hidden></p>
+  </section>
+
+  <section id="addPanel" hidden>
+    <div class="intro">
+      <p class="intro__eyebrow">CREATE YOUR OWN</p>
+      <h1 class="intro__title">オリジナルコードを追加する</h1>
+      <p class="intro__text">好きな押さえ方や、曲の中で見つけた独自のボイシングを登録できます。フレット番号は開放弦なら 0、鳴らさない弦は X（または空欄）を入力してください。</p>
+    </div>
+
+    <form id="addForm" class="form">
+      <div class="form__field">
+        <label for="customName">コード名</label>
+        <input type="text" id="customName" placeholder="例: Csus2(自作フォーム)" required>
+      </div>
+
+      <div class="form__grid" id="fretInputs"></div>
+
+      <div class="form__field">
+        <label for="customMemo">メモ（任意）</label>
+        <textarea id="customMemo" rows="3" placeholder="使う曲、押さえ方のコツなど"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn--primary">マイブックに追加する</button>
+    </form>
+  </section>
+
+</main>
+
+<div class="modal" id="chordModal" hidden>
+  <div class="modal__panel" role="dialog" aria-modal="true">
+    <button class="modal__close" data-action="close" aria-label="閉じる">×</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <p>MY GUITAR CHORD BOOK &mdash; データはすべてこのブラウザ内（localStorage）に保存されます。</p>
+  </div>
+</footer>
+
+<script src="js/chords.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
