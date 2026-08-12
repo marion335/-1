@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スケール表 | MY GUITAR CHORD BOOK</title>
+<meta name="description" content="全12キー対応のギタースケール表。メジャー、マイナー、ペンタトニック、ブルース、ドリアン、ミクソリディアンを0〜15フレットのネック全体で表示。度数と構成音つき。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#a8462f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Chord Book">
+</head>
+<body>
+
+<header class="header">
+  <div class="container header__inner">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true">♪</span>
+      <div>
+        <p class="brand__title">MY GUITAR CHORD BOOK</p>
+        <p class="brand__subtitle">オリジナル・ギターコードブック</p>
+      </div>
+    </div>
+    <nav class="nav-tabs">
+      <a class="nav-tab" href="index.html">コード一覧</a>
+      <a class="nav-tab" href="index.html#mybook">★ マイブック</a>
+      <a class="nav-tab is-active" href="scales.html">スケール表</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+  <section>
+    <div class="intro">
+      <p class="intro__eyebrow">12 KEYS / SCALE PATTERNS</p>
+      <h1 class="intro__title">全12キー対応、スケール表</h1>
+      <p class="intro__text">メジャー／マイナー／ペンタトニック／ブルース／ドリアン／ミクソリディアンの各スケールを、0〜15フレットのネック全体で自動収録。スマホでもスクロールなしで全フレットが見えます。パターンの下には構成音も一覧できます。</p>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-row">
+        <label class="filter-label" for="scaleRootFilter">ルート音</label>
+        <select id="scaleRootFilter" class="select-input"></select>
+      </div>
+      <div class="filter-row">
+        <label class="filter-label" for="scaleTypeFilter">スケールタイプ</label>
+        <select id="scaleTypeFilter" class="select-input"></select>
+      </div>
+      <div class="filter-row">
+        <label class="filter-label">表示</label>
+        <div class="toggle-group" id="labelModeToggle"></div>
+      </div>
+    </div>
+
+    <p class="result-count" id="scaleResultCount"></p>
+    <div class="scale-list" id="scaleGrid"></div>
+    <p class="empty-state" id="scaleEmptyState" hidden>該当するスケールが見つかりませんでした。</p>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <p>MY GUITAR CHORD BOOK &mdash; スケールパターンはすべて自動生成です。</p>
+  </div>
+</footer>
+
+<script src="js/chords.js"></script>
+<script src="js/scales.js"></script>
+<script src="js/scales-app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js').then(reg => reg.update()));
+  }
+</script>
+</body>
+</html>

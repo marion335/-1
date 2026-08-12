@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - claude/homepage-creation-ot75vc
+      - claude/original-guitar-codebook-2mvr00
   workflow_dispatch:
 
 permissions:
