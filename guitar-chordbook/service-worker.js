@@ -5,7 +5,7 @@
    activate 時に自動削除されるので、更新の取りこぼしを防げる。
 =================================================================== */
 
-const CACHE_VERSION = 'gcb-v1';
+const CACHE_VERSION = 'gcb-v2';
 
 const PRECACHE_URLS = [
   './index.html',
