@@ -15,11 +15,11 @@ const scaleState = {
 
 function renderScaleSVG(pattern) {
   const cols = SCALE_FRET_MAX;
-  const fretGap = 42;
+  const fretGap = 29;
   const marginTop = 16;
   const marginBottom = 26;
-  const marginLeft = 26;
-  const marginRight = 16;
+  const marginLeft = 22;
+  const marginRight = 13;
   const rows = 5;
   const stringGap = 20;
   const W = marginLeft + marginRight + fretGap * cols;

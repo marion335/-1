@@ -348,7 +348,7 @@ a { color: inherit; }
   padding-bottom: 4px;
 }
 
-.scale-svg { min-width: 640px; }
+.scale-svg { width: 470px; max-width: none; }
 
 /* ---------- Form (add custom chord) ---------- */
 
