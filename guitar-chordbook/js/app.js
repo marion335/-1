@@ -176,6 +176,18 @@ const gridEl = document.getElementById('chordGrid');
 const emptyEl = document.getElementById('emptyState');
 const countEl = document.getElementById('resultCount');
 
+function toneRowHTML(c, opts = {}) {
+  const tones = chordTones(c);
+  if (!tones) return '';
+  const large = !!opts.large;
+  const pills = tones.map(t => `
+    <span class="tone-pill ${t.degree === 'R' ? 'tone-pill--root' : ''}">
+      <span class="tone-pill__note">${t.note}</span><span class="tone-pill__degree">${t.degree}</span>
+    </span>
+  `).join('');
+  return `<div class="tone-row ${large ? 'tone-row--large' : ''}">${pills}</div>`;
+}
+
 function chordCardHTML(c) {
   const fav = isFavorite(c.id);
   const badge = c.voicing === 'open'
@@ -189,6 +201,7 @@ function chordCardHTML(c) {
         <button class="star-btn ${fav ? 'is-fav' : ''}" data-action="fav" data-id="${c.id}" aria-label="お気に入り">${fav ? '★' : '☆'}</button>
       </div>
       <div class="chord-card__diagram">${renderChordSVG(c)}</div>
+      ${toneRowHTML(c)}
       <div class="chord-card__foot">
         <span class="badge">${badge}</span>
         ${rootBadge ? `<span class="badge badge--root">${rootBadge}</span>` : ''}
@@ -277,6 +290,7 @@ function openModal(id) {
     </div>
     ${rootBadge ? `<span class="badge badge--root">${rootBadge}</span>` : ''}
     <div class="modal__diagram">${renderChordSVG(c, { large: true })}</div>
+    ${toneRowHTML(c, { large: true })}
     <label class="modal__memo-label" for="memoInput">自分用メモ（練習ポイント・使う曲など）</label>
     <textarea id="memoInput" class="modal__memo" rows="4" placeholder="例：Aメロで使う。人差し指のセーハに注意。">${notes[id] || ''}</textarea>
     ${c.custom ? `<button class="btn btn--danger" data-action="delete-custom" data-id="${c.id}">このマイコードを削除</button>` : ''}

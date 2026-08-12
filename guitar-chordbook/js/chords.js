@@ -55,6 +55,25 @@ function rootStringLabel(chord) {
   return s === null ? null : `${6 - s}弦ルート`;
 }
 
+/**
+ * コードの構成音を度数の低い順（R, b3, 3, 5...）で返す。
+ * 同じ度数が複数弦で鳴っていても1件にまとめる。ルート不明（自作コード）ならnull。
+ * 戻り値: [{ interval, degree: 'R'|'b3'|..., note: 'E'|'G#'|... }, ...]
+ */
+function chordTones(chord) {
+  if (chord.root === undefined || chord.root === null) return null;
+  const seen = new Map();
+  chord.frets.forEach((fret, s) => {
+    if (fret < 0) return;
+    const pitch = (STRING_OPEN_PITCH[s] + fret) % 12;
+    const interval = (pitch - chord.root + 12) % 12;
+    if (!seen.has(interval)) seen.set(interval, pitch);
+  });
+  return [...seen.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([interval, pitch]) => ({ interval, degree: DEGREE_LABELS[interval], note: NOTE_NAMES[pitch] }));
+}
+
 /* ---------------- オープンコード辞書（厳選・定番） ---------------- */
 /* frets: [6弦,5弦,4弦,3弦,2弦,1弦] -1=ミュート 0=開放 1以上=フレット */
 

@@ -252,6 +252,37 @@ a { color: inherit; }
 
 .chord-card__diagram { display: flex; justify-content: center; }
 
+.tone-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin: 8px 0 2px;
+}
+
+.tone-pill {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  background: var(--paper-alt);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+}
+
+.tone-pill--root {
+  background: #fbf1d9;
+  border-color: var(--gold);
+}
+
+.tone-pill__note { font-weight: 700; color: var(--ink); }
+.tone-pill__degree { font-size: 0.66rem; color: var(--ink-soft); }
+
+.tone-row--large { gap: 6px; margin: 14px 0 18px; }
+.tone-row--large .tone-pill { padding: 4px 12px; font-size: 0.85rem; }
+.tone-row--large .tone-pill__degree { font-size: 0.75rem; }
+
 .chord-card__foot {
   display: flex;
   flex-wrap: wrap;
