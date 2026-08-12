@@ -402,7 +402,7 @@ document.getElementById('searchInput').addEventListener('input', e => {
   render();
 });
 
-document.querySelectorAll('.nav-tab').forEach(btn => {
+document.querySelectorAll('.nav-tab[data-view]').forEach(btn => {
   btn.addEventListener('click', () => {
     state.view = btn.dataset.view;
     render();
