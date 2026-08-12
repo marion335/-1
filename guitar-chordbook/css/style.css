@@ -309,6 +309,7 @@ a { color: inherit; }
 .chord-svg { display: block; }
 .string-line { stroke: var(--ink); stroke-width: 1; }
 .fret-line { stroke: var(--line); stroke-width: 1.4; }
+.fret-line--octave { stroke: var(--accent-soft); stroke-width: 2; }
 .nut-line { stroke: var(--ink); stroke-width: 3.5; }
 .barre-bar { stroke: var(--ink); stroke-width: 8; stroke-linecap: round; opacity: 0.85; }
 .dot { fill: var(--accent); }
@@ -317,6 +318,37 @@ a { color: inherit; }
 .degree-label--large { font-size: 8px; }
 .string-mark { fill: var(--ink-soft); font-size: 9px; font-family: 'Noto Sans JP', sans-serif; }
 .fret-label { fill: var(--ink-soft); font-size: 7.5px; font-family: 'Noto Sans JP', sans-serif; }
+.fret-number { fill: var(--ink-soft); font-size: 8px; font-family: 'Noto Sans JP', sans-serif; }
+
+/* ---------- Scale chart (0-15フレット フルネック表示) ---------- */
+
+.scale-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 60px;
+}
+
+.scale-card {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+
+.scale-card__position-hint {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.scale-card__diagram-wrap {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.scale-svg { min-width: 640px; }
 
 /* ---------- Form (add custom chord) ---------- */
 

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>スケール表 | MY GUITAR CHORD BOOK</title>
-<meta name="description" content="全12キー対応のギタースケール表。メジャー、マイナー、ペンタトニック、ブルース、ドリアン、ミクソリディアンを6弦ルート/5弦ルートの2ポジションで収録。度数と構成音つき。">
+<meta name="description" content="全12キー対応のギタースケール表。メジャー、マイナー、ペンタトニック、ブルース、ドリアン、ミクソリディアンを0〜15フレットのネック全体で表示。度数と構成音つき。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -35,7 +35,7 @@
     <div class="intro">
       <p class="intro__eyebrow">12 KEYS / SCALE PATTERNS</p>
       <h1 class="intro__title">全12キー対応、スケール表</h1>
-      <p class="intro__text">メジャー／マイナー／ペンタトニック／ブルース／ドリアン／ミクソリディアンの各スケールを、6弦ルート・5弦ルートの2ポジションで自動収録。ドットは度数表記、パターンの下には構成音も一覧できます。</p>
+      <p class="intro__text">メジャー／マイナー／ペンタトニック／ブルース／ドリアン／ミクソリディアンの各スケールを、0〜15フレットのネック全体で自動収録。ドットは度数表記、パターンの下には構成音も一覧できます。横にスクロールして全フレットを確認できます。</p>
     </div>
 
     <div class="filter-bar">
@@ -47,18 +47,10 @@
         <label class="filter-label" for="scaleTypeFilter">スケールタイプ</label>
         <select id="scaleTypeFilter" class="select-input"></select>
       </div>
-      <div class="filter-row">
-        <label class="filter-label" for="scalePositionFilter">ポジション</label>
-        <select id="scalePositionFilter" class="select-input">
-          <option value="all">すべて</option>
-          <option value="E-shape">6弦ルート</option>
-          <option value="A-shape">5弦ルート</option>
-        </select>
-      </div>
     </div>
 
     <p class="result-count" id="scaleResultCount"></p>
-    <div class="chord-grid" id="scaleGrid"></div>
+    <div class="scale-list" id="scaleGrid"></div>
     <p class="empty-state" id="scaleEmptyState" hidden>該当するスケールが見つかりませんでした。</p>
   </section>
 
